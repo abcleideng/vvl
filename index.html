@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>私家侦探</title>
+  <style>
+    body {
+      margin:0;
+      min-height:100vh;
+      background:linear-gradient(135deg,#23243a 0%,#1a1b2b 100%);
+      font-family: 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+      color:#f3f6fa;
+      letter-spacing:0.5px;
+    }
+    .container {
+      max-width:520px;
+      margin:0 auto;
+      padding:18px 8px 12px 8px;
+    }
+    .title {
+      font-size:26px;
+      font-weight:900;
+      margin-bottom:18px;
+      color:#fff;
+      letter-spacing:2px;
+      text-shadow:0 2px 16px #00eaff44,0 1px 0 #222;
+      text-align:center;
+      user-select:none;
+    }
+    .input-area {
+      margin-bottom:18px;
+      background:rgba(30,34,60,0.85);
+      border-radius:16px;
+      box-shadow:0 2px 16px #00eaff22;
+      padding:14px 10px 10px 10px;
+    }
+    .input-btns {
+      display:flex; gap:8px; margin-bottom:8px;
+    }
+    .parse-btn, .history-btn {
+      flex:1;
+      background:linear-gradient(90deg,#00eaff 0%,#0051ff 100%);
+      color:#fff; border:none; border-radius:8px;
+      padding:12px 0; font-size:17px; font-weight:700; cursor:pointer;
+      box-shadow:0 2px 12px #00eaff55;
+      letter-spacing:1px;
+      transition:.2s;
+    }
+    .parse-btn.active, .history-btn.active {
+      background:linear-gradient(90deg,#fff 0%,#00eaff 100%);
+      color:#0051ff;
+      border:2px solid #00eaff;
+      box-shadow:0 0 0 3px #00eaff99,0 2px 12px #00eaff77;
+    }
+    textarea {
+      width:100%; min-height:100px; border-radius:10px; border:none;
+      font-size:15px; padding:10px; resize:vertical; box-sizing:border-box;
+      background:rgba(36,38,60,0.95); color:#fff; outline:none;
+      font-family:inherit;
+      box-shadow:0 1px 6px #00eaff22 inset;
+      margin-bottom:8px;
+      transition:.2s;
+    }
+    textarea:focus { box-shadow:0 2px 12px #00eaff55 inset; }
+    .history-panel {
+      margin-bottom:10px;
+      background:rgba(30,34,60,0.98);
+      border-radius:14px;
+      box-shadow:0 2px 12px #00eaff33;
+      padding:10px 10px 8px 10px;
+    }
+    .history-title {
+      font-size:15px;
+      font-weight:700;
+      color:#00eaff;
+      margin-bottom:6px;
+      letter-spacing:1px;
+      text-shadow:0 1px 4px #00eaff55;
+    }
+    .history-list {
+      display:flex; flex-wrap:wrap; gap:6px 10px;
+    }
+    .history-tag {
+      background:linear-gradient(90deg,#00eaff33 0%,#0051ff33 100%);
+      color:#fff; border-radius:8px; padding:2px 10px; font-size:13px; margin:2px 0;
+      box-shadow:0 1px 8px #00eaff33;
+      text-shadow:0 1px 4px #0051ff55;
+      font-weight:500;
+      letter-spacing:1px;
+      transition:.2s;
+      white-space:nowrap;
+    }
+    .quick-btns {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .quick-btn {
+      padding: 2px 10px;
+      font-size: 13px;
+      border-radius: 6px;
+      border: none;
+      background: linear-gradient(90deg,#00eaff 0%,#0051ff 100%);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: .15s;
+    }
+    .quick-btn:active {
+      background: linear-gradient(90deg,#0051ff 0%,#00eaff 100%);
+      color: #fff;
+    }
+    .grid49 {
+      display:grid; grid-template-columns:repeat(7,1fr); gap:10px;
+      margin-bottom:10px;
+    }
+    .num-block {
+      background:rgba(36,38,60,0.98);
+      border-radius:14px;
+      box-shadow:0 2px 12px #00eaff22,0 1px 2px #0004;
+      min-height:60px;
+      display:flex; flex-direction:column; align-items:center; position:relative;
+      transition:.2s;
+      padding:8px 4px 8px 4px;
+      overflow:hidden;
+    }
+    .num-btn {
+      width:38px; height:38px; border-radius:50%;
+      background:linear-gradient(135deg,#00eaff 0%,#0051ff 100%);
+      color:#fff; font-size:19px; font-weight:800;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:4px; cursor:pointer; border:2px solid #00eaff;
+      box-shadow:0 2px 12px #00eaff55,0 1px 2px #0004;
+      user-select:none;
+      transition:.2s;
+      outline:none;
+      position:relative;
+      z-index:2;
+    }
+    .num-btn.active {
+      background:linear-gradient(135deg,#fff 0%,#00eaff 100%);
+      color:#0051ff;
+      border-color:#fff;
+      box-shadow:0 0 0 3px #00eaff99,0 2px 12px #00eaff77;
+      transform:scale(1.08);
+    }
+    .num-btn.red {
+      background:linear-gradient(135deg,#ff3b3b 0%,#ffb199 100%) !important;
+      color:#fff !important;
+      border-color:#fff !important;
+      box-shadow:0 0 0 3px #ff3b3b99,0 2px 12px #ffb19977 !important;
+    }
+    .user-list {
+      margin-top:2px; width:100%; display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:flex-start;
+      gap:4px 6px;
+      animation:fadeIn .4s;
+    }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(10px);}
+      to { opacity:1; transform:translateY(0);}
+    }
+    .user-tag {
+      background:linear-gradient(90deg,#00eaff33 0%,#0051ff33 100%);
+      color:#fff; border-radius:8px; padding:2px 7px; font-size:12px; margin:1px 0;
+      box-shadow:0 1px 8px #00eaff33;
+      text-shadow:0 1px 4px #0051ff55;
+      font-weight:500;
+      letter-spacing:0.5px;
+      transition:.2s;
+      white-space:nowrap;
+    }
+    .count {
+      font-size:13px; color:#00eaff; margin-bottom:2px; font-weight:700;
+      text-shadow:0 1px 4px #00eaff55;
+    }
+    .detail-panel {
+      margin-top:18px;
+      background:rgba(30,34,60,0.98);
+      border-radius:14px;
+      box-shadow:0 2px 12px #00eaff33;
+      padding:14px 10px 10px 10px;
+    }
+    .detail-title {
+      font-size:16px;
+      font-weight:700;
+      color:#00eaff;
+      margin-bottom:10px;
+      letter-spacing:1px;
+      text-shadow:0 1px 4px #00eaff55;
+    }
+    .detail-list {
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .detail-item {
+      color:#fff;
+      font-size:13px;
+      background:linear-gradient(90deg,#00eaff22 0%,#0051ff22 100%);
+      border-radius:7px;
+      padding:5px 10px;
+      word-break:break-all;
+      box-shadow:0 1px 4px #00eaff22;
+      letter-spacing:1px;
+    }
+    .stat-panel {
+      margin-top:18px;
+      background:rgba(30,34,60,0.98);
+      border-radius:14px;
+      box-shadow:0 2px 12px #00eaff33;
+      padding:14px 10px 10px 10px;
+    }
+    .stat-title {
+      font-size:16px;
+      font-weight:700;
+      color:#00eaff;
+      margin-bottom:10px;
+      letter-spacing:1px;
+      text-shadow:0 1px 4px #00eaff55;
+    }
+    .stat-list {
+      font-size:13px;
+      color:#fff;
+      line-height:1.8;
+      word-break:break-all;
+    }
+    .detail-num.highlight-num {
+  background: #ff3b3b;
+  color: #fff;
+  border-radius: 4px;
+  padding: 0 4px;
+  font-weight: bold;
+}
+    @media (max-width: 400px) {
+      .container { padding:2px; }
+      .num-btn { width:28px; height:28px; font-size:15px;}
+      .user-tag, .history-tag { font-size:10px; padding:2px 5px;}
+      .quick-btn { font-size:11px; padding:2px 6px;}
+      .title { font-size:20px;}
+      .detail-title, .stat-title, .history-title { font-size:14px;}
+      .detail-item, .stat-list { font-size:11px; padding:3px 6px;}
+    }
+    .stat-panel table { font-family: monospace,Consolas,'SF Mono','Menlo',monospace; }
+.stat-panel th, .stat-panel td { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">私家侦探</div>
+    <div class="input-area">
+      <div class="input-btns">
+        <button class="parse-btn active" id="btnToday" onclick="onTodayClick()">解析数据</button>
+        <button class="history-btn" id="btnHistory" onclick="onHistoryClick()">历史开奖用户</button>
+      </div>
+      <textarea id="mainInput" placeholder="请粘贴数据"></textarea>
+      <div id="historyPanel"></div>
+    </div>
+    <div class="quick-btns" id="quickBtns"></div>
+    <div class="grid49" id="grid49"></div>
+    <div id="detailPanel"></div>
+    <div id="statPanel"></div>
+    <!-- 在statPanel后面加 -->
+    <div id="statOrderPanel"></div>
+    <div id="groupPanel"></div>
+    <div id="groupPanelStat"></div>
+  </div>
+<script>
+let users = [];
+let numUserMap = {};
+let activeNums = {};
+let mode = 'today'; // 'today' or 'history'
+let todayInput = '';
+let historyInput = '';
+let todayUsers = [];
+let todayNumUserMap = {};
+
+// 监听输入框变化，分别保存内容并自动解析
+document.getElementById('mainInput').addEventListener('input', function() {
+  if (mode === 'today') {
+    todayInput = this.value;
+    parseAndRender();
+  } else if (mode === 'history') {
+    historyInput = this.value;
+    parseHistoryUsersAndAutoSelect();
+  }
+});
+
+function onTodayClick() {
+  mode = 'today';
+  document.getElementById('btnToday').classList.add('active');
+  document.getElementById('btnHistory').classList.remove('active');
+  document.getElementById('historyPanel').style.display = 'none';
+  document.getElementById('mainInput').value = todayInput;
+  parseAndRender();
+}
+function onHistoryClick() {
+  mode = 'history';
+  document.getElementById('btnToday').classList.remove('active');
+  document.getElementById('btnHistory').classList.add('active');
+  document.getElementById('historyPanel').style.display = '';
+  document.getElementById('mainInput').value = historyInput;
+  parseHistoryUsersAndAutoSelect();
+}
+
+function parseUserData(raw) {
+  // 先去掉所有网址，按网址分块
+  let blocks = raw.split(/https?:\/\/t\.me\/[^\s]+/g);
+  const users = [];
+  for (let block of blocks) {
+    let lines = block.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    let i = 0;
+    while (i < lines.length) {
+      // 1. 用户名+日期
+      let m = lines[i].match(/^([^,\n\[]+)[,，:：\s]*\[?(\d{4}[年\/\-\.]{1}\d{1,2}[月\/\-\.]{1}\d{1,2}[日]?)/);
+      let name = '';
+      let userLines = [];
+      if (m) {
+        name = m[1].trim();
+        userLines.push(lines[i]);
+        i++;
+        while (i < lines.length && !lines[i].match(/^([^,\n\[]+)[,，:：\s]*\[?(\d{4}[年\/\-\.]{1}\d{1,2}[月\/\-\.]{1}\d{1,2}[日]?)/)) {
+          userLines.push(lines[i]);
+          i++;
+        }
+      } else if (
+        /^[\u4e00-\u9fa5A-Za-z0-9@_\\-]{1,30}[,，:：]?$/.test(lines[i]) &&
+        !/^((12[\s]*码|12[\s]*碼|新澳|新奥)[^\\d]*)/i.test(lines[i]) &&
+        !/^\d/.test(lines[i])
+      ) {
+        name = lines[i].replace(/[,，:：]$/, '').trim();
+        userLines.push(lines[i]);
+        i++;
+        while (
+          i < lines.length &&
+          !lines[i].match(/^([^,\n\[]+)[,，:：\s]*\[?(\d{4}[年\/\-\.]{1}\d{1,2}[月\/\-\.]{1}\d{1,2}[日]?)/) &&
+          !(/^[\u4e00-\u9fa5A-Za-z0-9@_\\-]{1,30}[,，:：]?$/.test(lines[i]) && !/^((12[\s]*码|12[\s]*碼|新澳|新奥)[^\\d]*)/i.test(lines[i]) && !/^\d/.test(lines[i]))
+        ) {
+          userLines.push(lines[i]);
+          i++;
+        }
+      } else {
+        if (users.length > 0) {
+          users[users.length - 1].__extra = (users[users.length - 1].__extra || []).concat(lines[i]);
+        }
+        i++;
+        continue;
+      }
+      let blockText = userLines.join('\n');
+      let allNums = [];
+      // 先找所有“12码”或“12碼”后面的内容
+      let numMatches = blockText.match(/(?:12[\s]*码|12[\s]*碼)[^\d\n]*([\d\s,，.．、;；\-—_·`'\"\/\\]*)/ig);
+      if (numMatches) {
+        numMatches.forEach(match => {
+          let numStr = match.replace(/(?:12[\s]*码|12[\s]*碼)[^\d\n]*/i, '');
+          // 先把所有4位数字拆成两个两位
+          numStr = numStr.replace(/(\d{4})/g, function(m) {
+            return m.slice(0,2) + ' ' + m.slice(2,4);
+          });
+          let nums = numStr.replace(/[，,、.．;；\-—_·`'\"\/\\]/g, ' ')
+            .split(/\s+/)
+            .map(n => n.padStart(2, '0'))
+            .filter(n => /^\d{2}$/.test(n) && +n >= 1 && +n <= 49);
+          allNums = allNums.concat(nums);
+        });
+      }
+      // 再找所有“新澳xx期”后紧跟的数字
+      let numMatches2 = blockText.match(/新[澳奥][^\d]{0,3}\d{2,4}[期:]?([\d\s,，.．、;；\-—_·`'\"\/\\]*)/ig);
+      if (numMatches2) {
+        numMatches2.forEach(match => {
+          let numStr = match.replace(/新[澳奥][^\d]{0,3}\d{2,4}[期:]?/i, '');
+          numStr = numStr.replace(/(\d{4})/g, function(m) {
+            return m.slice(0,2) + ' ' + m.slice(2,4);
+          });
+          let nums = numStr.replace(/[，,、.．;；\-—_·`'\"\/\\]/g, ' ')
+            .split(/\s+/)
+            .map(n => n.padStart(2, '0'))
+            .filter(n => /^\d{2}$/.test(n) && +n >= 1 && +n <= 49);
+          allNums = allNums.concat(nums);
+        });
+      }
+      // 兜底：所有行的最长数字串
+      if (allNums.length === 0) {
+        for (let l of userLines) {
+          let numStr = l.replace(/[^\d,，.．、;；\-—_·`'\"\/\\\s]/g,'');
+          numStr = numStr.replace(/(\d{4})/g, function(m) {
+            return m.slice(0,2) + ' ' + m.slice(2,4);
+          });
+          let nums = numStr.replace(/[，,、.．;；\-—_·`'\"\/\\]/g, ' ')
+            .split(/\s+/)
+            .map(n => n.padStart(2, '0'))
+            .filter(n => /^\d{2}$/.test(n) && +n >= 1 && +n <= 49);
+          allNums = allNums.concat(nums);
+        }
+      }
+      let nums = Array.from(new Set(allNums));
+      if (!name || nums.length === 0) continue;
+      users.push({ name, nums });
+    }
+  }
+  // 合并__extra补充的数字
+  for (let u of users) {
+    if (u.__extra) {
+      let extraText = u.__extra.join('\n');
+      extraText = extraText.replace(/(\d{4})/g, function(m) {
+        return m.slice(0,2) + ' ' + m.slice(2,4);
+      });
+      let extraNums = extraText.replace(/[，,、.．;；\-—_·`'\"\/\\]/g, ' ')
+        .split(/\s+/)
+        .map(n => n.padStart(2, '0'))
+        .filter(n => /^\d{2}$/.test(n) && +n >= 1 && +n <= 49);
+      u.nums = Array.from(new Set(u.nums.concat(extraNums)));
+      delete u.__extra;
+    }
+  }
+  // 去重
+  const map = {};
+  users.forEach(u => {
+    let key = u.name + u.nums.join(',');
+    map[key] = u;
+  });
+  return Object.values(map);
+}
+
+function buildNumUserMap(users) {
+  const map = {};
+  for (let i = 1; i <= 49; i++) {
+    let num = i.toString().padStart(2, '0');
+    map[num] = [];
+  }
+  users.forEach(u => {
+    u.nums.forEach(num => {
+      if (map[num] && u.name) map[num].push(u.name);
+    });
+  });
+  for (let k in map) {
+    map[k] = Array.from(new Set(map[k]));
+  }
+  return map;
+}
+
+// 历史记录用户名提取与自动勾选，只统计历史用户
+function parseHistoryUsersAndAutoSelect() {
+  const raw = document.getElementById('mainInput').value;
+  const lines = raw.split('\n');
+  const names = [];
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i].trim();
+    let m = line.match(/^(.+?),\s*\[\d{4}\/\d{1,2}\/\d{1,2}\/?.*?\d{1,2}:\d{2}\]/);
+    if (m) { names.push(m[1].trim()); continue; }
+    let m2 = line.match(/^(.+?),\s*\[\d{4}\/\d{1,2}\/\d{1,2}.*?\d{1,2}:\d{2}\]/);
+    if (m2) { names.push(m2[1].trim()); continue; }
+  }
+  const uniqueNames = Array.from(new Set(names)).filter(Boolean);
+  const nameSet = new Set(uniqueNames);
+
+  // 渲染用户名
+  const panel = document.getElementById('historyPanel');
+  if (uniqueNames.length === 0) {
+    panel.innerHTML = '<div style="color:#888;font-size:13px;">未识别到用户名</div>';
+  } else {
+    let html = `<div class="history-panel">
+      <div class="history-title">历史记录用户名（共${uniqueNames.length}个）</div>
+      <div class="history-list">`;
+    uniqueNames.forEach(name => {
+      html += `<span class="history-tag">${name}</span>`;
+    });
+    html += `</div></div>`;
+    panel.innerHTML = html;
+  }
+
+  // 自动勾选这些用户在最新数据中的数字
+  activeNums = {};
+  // 用 todayUsers（最新数据）查找
+  users = todayUsers.filter(u => nameSet.has(u.name));
+  let numsSet = new Set();
+  users.forEach(u => {
+    u.nums.forEach(num => numsSet.add(num));
+  });
+  numsSet.forEach(num => activeNums[num] = true);
+  numUserMap = buildNumUserMap(users);
+
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+}
+
+function getSelectedUsersDetail() {
+  const selectedUserMap = {};
+  Object.keys(activeNums).forEach(num => {
+    if (activeNums[num]) {
+      (numUserMap[num] || []).forEach(name => {
+        const user = users.find(u => u.name === name);
+        if (user) selectedUserMap[user.name] = user;
+      });
+    }
+  });
+  return Object.values(selectedUserMap);
+}
+
+function getSelectedNumsStat(selectedUsers) {
+  const stat = {};
+  for (let i = 1; i <= 49; i++) stat[i.toString().padStart(2, '0')] = 0;
+  selectedUsers.forEach(u => {
+    u.nums.forEach(num => {
+      if (stat[num] !== undefined) stat[num]++;
+    });
+  });
+  const group = {};
+  Object.entries(stat).forEach(([num, count]) => {
+    if (!group[count]) group[count] = [];
+    group[count].push(num);
+  });
+  const sorted = Object.entries(group)
+    .filter(([count, arr]) => arr.length > 0)
+    .sort((a, b) => b[0] - a[0]);
+  return sorted;
+}
+
+function renderQuickBtns() {
+  const quickBtns = document.getElementById('quickBtns');
+  let html = '';
+  if (mode === 'today') {
+    html = `
+      <button class="quick-btn" onclick="selectAllNums()">全勾选</button>
+      <button class="quick-btn" onclick="unselectAllNums()">全不选</button>
+    `;
+  } else if (mode === 'history') {
+    html = `
+      <button class="quick-btn" onclick="selectAllHistoryNums()">全勾选</button>
+      <button class="quick-btn" onclick="unselectAllHistoryNums()">全不选</button>
+    `;
+  }
+  quickBtns.innerHTML = html;
+}
+function selectAllNums() {
+  for (let i = 1; i <= 49; i++) {
+    let num = i.toString().padStart(2, '0');
+    activeNums[num] = true;
+  }
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+}
+function unselectAllNums() {
+  activeNums = {};
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+}
+function selectAllHistoryNums() {
+  for (let i = 1; i <= 49; i++) {
+    let num = i.toString().padStart(2, '0');
+    if ((numUserMap[num]||[]).length > 0) activeNums[num] = true;
+  }
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+}
+function unselectAllHistoryNums() {
+  activeNums = {};
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+}
+
+function renderGrid49() {
+  renderQuickBtns();
+  const grid = document.getElementById('grid49');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 49; i++) {
+    let num = i.toString().padStart(2, '0');
+    let block = document.createElement('div');
+    block.className = 'num-block';
+    let btnClass = 'num-btn';
+    if (activeNums[num]) {
+      btnClass += ' active';
+      if (mode === 'history') btnClass += ' red';
+    }
+    let btn = document.createElement('div');
+    btn.className = btnClass;
+    btn.innerText = num;
+    btn.onclick = function() {
+      activeNums[num] = !activeNums[num];
+      renderGrid49();
+      renderDetailPanel();
+      renderStatPanel();
+    };
+    block.appendChild(btn);
+    let userList = numUserMap[num] || [];
+    let count = document.createElement('div');
+    count.className = 'count';
+    count.innerText = userList.length + '人';
+    block.appendChild(count);
+    if (activeNums[num]) {
+      let ul = document.createElement('div');
+      ul.className = 'user-list';
+      userList.forEach(name => {
+        let tag = document.createElement('span');
+        tag.className = 'user-tag';
+        tag.innerText = name;
+        ul.appendChild(tag);
+      });
+      block.appendChild(ul);
+    }
+    grid.appendChild(block);
+  }
+}
+
+let highlightedNum = null; // 只允许高亮一个数字
+
+function renderDetailPanel() {
+  const detailPanel = document.getElementById('detailPanel');
+  const selectedUsers = getSelectedUsersDetail();
+  if (selectedUsers.length === 0) {
+    detailPanel.innerHTML = '';
+    return;
+  }
+  // 统计有高亮数字的用户数
+  let highlightCount = 0;
+  if (highlightedNum) {
+    selectedUsers.forEach(u => {
+      if (u.nums.includes(highlightedNum)) highlightCount++;
+    });
+  }
+  let html = `<div class="detail-panel">
+    <div class="detail-title">选中数字下所有用户的原始数据`
+    + (highlightedNum ? `（高亮数字 <span style='color:#ff3b3b;font-weight:bold;'>${highlightedNum}</span>，共${highlightCount}人）` : '')
+    + `</div><div class="detail-list">`;
+  let allSum = 0;
+  selectedUsers.forEach(u => {
+    // 只统计前12个数字
+    let nums = u.nums.slice(0, 12);
+    let sum = nums.reduce((a, b) => a + Number(b), 0);
+    allSum += sum;
+    html += `<div class="detail-item">${u.name}：`;
+    html += nums.map(num => {
+      let cls = 'detail-num';
+      if (highlightedNum === num) cls += ' highlight-num';
+      return `<span class="${cls}" data-num="${num}" style="cursor:pointer;margin:0 2px;">${num}</span>`;
+    }).join(' ');
+    html += `　<span style="color:#ff3b3b;">总和：${sum}</span>`;
+    html += `</div>`;
+  });
+  html += `</div>
+    <div style="margin-top:10px;color:#00eaff;font-weight:bold;">所有用户12码总和：${allSum}</div>
+  </div>`;
+  detailPanel.innerHTML = html;
+  // 绑定点击事件
+  document.querySelectorAll('.detail-num').forEach(el => {
+    el.onclick = function() {
+      let num = this.getAttribute('data-num');
+      if (highlightedNum === num) {
+        highlightedNum = null;
+      } else {
+        highlightedNum = num;
+      }
+      renderDetailPanel();
+    };
+  });
+}
+
+function renderStatPanel() {
+  const statPanel = document.getElementById('statPanel');
+  const selectedUsers = getSelectedUsersDetail();
+  if (selectedUsers.length === 0) {
+    statPanel.innerHTML = '';
+    return;
+  }
+  // 数字出现次数统计（原有功能）
+  const statArr = getSelectedNumsStat(selectedUsers);
+  let html = `<div class="stat-panel">
+    <div class="stat-title">数字出现次数统计</div>
+    <div class="stat-list">`;
+  statArr.forEach(([count, nums]) => {
+    if (parseInt(count) === 0) return;
+    html += `〖${count}次〗${nums.join(' ')}（共计${nums.length}个）<br>`;
+  });
+  let zeroNums = statArr.find(([count]) => parseInt(count) === 0);
+  if (zeroNums && zeroNums[1].length > 0) {
+    html += `〖0次〗${zeroNums[1].join(' ')}（共计${zeroNums[1].length}个）<br>`;
+  }
+  html += `</div></div>`;
+
+  // 新增：用户名出现次数统计
+  // 获取所有用户（所有数据）
+  const allUserNames = Array.from(new Set((todayUsers || []).map(u => u.name)));
+  if (allUserNames.length > 0) {
+    // 统计每个用户名在选中数字下出现了几次
+    const userCountMap = {};
+    allUserNames.forEach(name => userCountMap[name] = 0);
+    Object.keys(activeNums).forEach(num => {
+      if (activeNums[num]) {
+        (numUserMap[num] || []).forEach(name => {
+          if (userCountMap[name] !== undefined) userCountMap[name]++;
+        });
+      }
+    });
+    // 分组
+    const group = {};
+    Object.entries(userCountMap).forEach(([name, count]) => {
+      if (!group[count]) group[count] = [];
+      group[count].push(name);
+    });
+    // 排序并格式化
+    const sorted = Object.entries(group)
+      .sort((a, b) => b[0] - a[0]);
+    html += `<div class="stat-title">用户名出现次数统计</div>
+      <div class="stat-list">`;
+    sorted.forEach(([count, names]) => {
+      html += `〖${count}次〗${names.join('，')}（共计${names.length}个）<br>`;
+    });
+    html += `</div>`;
+  }
+  statPanel.innerHTML = html;
+}
+
+function parseAndRender() {
+  users = parseUserData(todayInput);
+  todayUsers = users;
+  numUserMap = buildNumUserMap(users);
+  todayNumUserMap = numUserMap;
+  activeNums = {};
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+}
+
+window.onload = function() {
+  document.getElementById('historyPanel').style.display = 'none';
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+};
+let statOrderHighlightNum = null; // 高亮的数字
+
+// ...existing code...
+
+function renderStatOrderPanel() {
+  const panel = document.getElementById('statOrderPanel');
+  if (!todayUsers || todayUsers.length === 0) {
+    panel.innerHTML = '';
+    return;
+  }
+  const orderStat = [];
+  for (let i = 0; i < 12; i++) {
+    orderStat[i] = {};
+    for (let n = 1; n <= 49; n++) {
+      orderStat[i][n.toString().padStart(2, '0')] = 0;
+    }
+  }
+  todayUsers.forEach(u => {
+    for (let i = 0; i < 12; i++) {
+      const num = u.nums[i];
+      if (num && orderStat[i][num] !== undefined) {
+        orderStat[i][num]++;
+      }
+    }
+  });
+
+  let html = `<div class="stat-panel">
+    <div class="stat-title">顺序覆盖率表（行：数字，列：位置，可点数字高亮）</div>
+    <div style="overflow-x:auto;">
+    <table style="border-collapse:collapse;width:100%;font-size:12px;font-family:monospace,Consolas,'SF Mono','Menlo',monospace; border:1px solid #00eaff;">
+      <thead>
+        <tr>
+          <th style="padding:2px 4px;border:1px solid #00eaff;text-align:center;background:#182040;">数字</th>`;
+  for (let i = 0; i < 12; i++) {
+    html += `<th style="padding:2px 4px;border:1px solid #00eaff;text-align:center;background:#182040;">${(i+1).toString().padStart(2, '0')}</th>`;
+  }
+  html += `</tr></thead><tbody>`;
+  for (let n = 1; n <= 49; n++) {
+    let num = n.toString().padStart(2, '0');
+    // 统计该数字在12个位置出现0次的次数
+    let zeroCount = 0;
+    for (let i = 0; i < 12; i++) {
+      if (orderStat[i][num] === 0) zeroCount++;
+    }
+    let numCellStyle = `padding:2px 4px;color:#00eaff;font-weight:bold;text-align:center;border:1px solid #00eaff;background:#23243a;cursor:pointer;`;
+    if (statOrderHighlightNum === num) {
+      numCellStyle += 'background:#ff3b3b;color:#fff;';
+    }
+    html += `<tr><td style="${numCellStyle}" data-num="${num}" class="order-num-cell">${num}</td>`;
+    for (let i = 0; i < 12; i++) {
+      const cnt = orderStat[i][num];
+      let tdStyle = "padding:2px 4px;text-align:center;border:1px solid #00eaff;background:#23243a;";
+      if (statOrderHighlightNum === num) {
+        tdStyle += "background:#ffb3b3;color:#c00;font-weight:bold;";
+      }
+      // 如果该数字0次的数量>=5，并且当前为0，显示为红色
+      if (cnt === 0 && zeroCount >= 6) {
+        html += `<td style="${tdStyle};color:#ff3b3b;font-weight:bold;">0</td>`;
+      } else {
+        html += `<td style="${tdStyle}">${cnt.toString().padStart(2, ' ')}</td>`;
+      }
+    }
+    html += `</tr>`;
+  }
+  html += `</tbody></table></div></div>`;
+
+  panel.innerHTML = html;
+
+  // 绑定点击事件
+  document.querySelectorAll('.order-num-cell').forEach(el => {
+    el.onclick = function() {
+      let num = this.getAttribute('data-num');
+      if (statOrderHighlightNum === num) {
+        statOrderHighlightNum = null;
+      } else {
+        statOrderHighlightNum = num;
+      }
+      renderStatOrderPanel();
+    };
+  });
+}
+// ...existing code...
+function parseAndRender() {
+  users = parseUserData(todayInput);
+  todayUsers = users;
+  numUserMap = buildNumUserMap(users);
+  todayNumUserMap = numUserMap;
+  activeNums = {};
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+  renderStatOrderPanel();
+}
+function onTodayClick() {
+  mode = 'today';
+  document.getElementById('btnToday').classList.add('active');
+  document.getElementById('btnHistory').classList.remove('active');
+  document.getElementById('historyPanel').style.display = 'none';
+  document.getElementById('mainInput').value = todayInput;
+  parseAndRender();
+  renderStatOrderPanel();
+}
+function onHistoryClick() {
+  mode = 'history';
+  document.getElementById('btnToday').classList.remove('active');
+  document.getElementById('btnHistory').classList.add('active');
+  document.getElementById('historyPanel').style.display = '';
+  document.getElementById('mainInput').value = historyInput;
+  parseHistoryUsersAndAutoSelect();
+  renderStatOrderPanel();
+}
+window.onload = function() {
+  document.getElementById('historyPanel').style.display = 'none';
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+  renderStatOrderPanel();
+};
+// 固定组合组定义
+const GROUPS = [
+  ["01","13","25","37","49"],
+  ["07","19","31","43"],
+  ["02","14","26","38"],
+  ["08","20","32","44"],
+  ["03","15","27","39"],
+  ["09","21","33","45"],
+  ["04","16","28","40"],
+  ["10","22","34","46"],
+  ["05","17","29","41"],
+  ["11","23","35","47"],
+  ["06","18","30","42"],
+  ["12","24","36","48"]
+];
+
+// 只找2个连续相邻且顺序一致的组合
+function findAdjacentGroup(nums, group) {
+  let res = [];
+  for (let i = 0; i < nums.length - 1; i++) {
+    for (let j = 0; j < group.length - 1; j++) {
+      if (nums[i] === group[j] && nums[i + 1] === group[j + 1]) {
+        res.push(nums[i] + ' ' + nums[i + 1]);
+      }
+    }
+  }
+  // 去重
+  return Array.from(new Set(res));
+}
+
+// 只找2个连续相邻且顺序一致的组合
+function findAdjacentGroup(nums, group) {
+  let res = [];
+  for (let i = 0; i < nums.length - 1; i++) {
+    for (let j = 0; j < group.length - 1; j++) {
+      if (nums[i] === group[j] && nums[i + 1] === group[j + 1]) {
+        res.push([nums[i], nums[i + 1]]);
+      }
+    }
+  }
+  // 去重
+  let strSet = new Set(res.map(arr => arr.join(' ')));
+  return Array.from(strSet).map(s => s.split(' '));
+}
+
+// 渲染组合展示栏，并统计所有命中数字
+function renderGroupPanel() {
+  const panel = document.getElementById('groupPanel');
+  const statNums = []; // 用于统计
+  if (!todayUsers || todayUsers.length === 0) {
+    panel.innerHTML = '';
+    renderGroupPanelStat([]); // 清空统计
+    return;
+  }
+  let html = `<div class="stat-panel">
+    <div class="stat-title">固定组“2个连续且顺序一致”命中用户</div>
+    <div class="stat-list">`;
+  let hitCount = 0;
+  todayUsers.forEach(u => {
+    let hitSegments = [];
+    GROUPS.forEach(group => {
+      let matches = findAdjacentGroup(u.nums.slice(0,12), group);
+      if (matches.length > 0) {
+        hitSegments.push(...matches.map(arr => arr.join(' ')));
+        matches.forEach(arr => statNums.push(...arr));
+      }
+    });
+    if (hitSegments.length > 0) {
+      hitCount++;
+      html += `<div style="margin-bottom:4px;"><b style="color:#00eaff;">${u.name}</b>：${hitSegments.join('，')}<br>
+      <span style="color:#888;">原始12码：${u.nums.slice(0,12).join(' ')}</span></div>`;
+    }
+  });
+  if (hitCount === 0) {
+    html += `<span style="color:#888;">暂无命中用户</span>`;
+  }
+  html += `</div></div>`;
+  panel.innerHTML = html;
+  renderGroupPanelStat(statNums);
+}
+
+// 统计所有命中组合数字出现次数并分组展示
+function renderGroupPanelStat(numsArr) {
+  const panel = document.getElementById('groupPanelStat');
+  // 统计
+  let stat = {};
+  for (let i = 1; i <= 49; i++) stat[i.toString().padStart(2, '0')] = 0;
+  numsArr.forEach(num => {
+    if (stat[num] !== undefined) stat[num]++;
+  });
+  // 分组
+  let group = {};
+  Object.entries(stat).forEach(([num, count]) => {
+    if (!group[count]) group[count] = [];
+    group[count].push(num);
+  });
+  // 排序并格式化
+  let sorted = Object.entries(group)
+    .sort((a, b) => b[0] - a[0]);
+  let html = `<div class="stat-panel">
+    <div class="stat-title">命中组合数字出现次数统计</div>
+    <div class="stat-list">`;
+  sorted.forEach(([count, nums]) => {
+    html += `〖${count}次〗${nums.join(' ')}（共计${nums.length}个）<br>`;
+  });
+  html += `</div></div>`;
+  panel.innerHTML = html;
+}
+
+// 在解析和切换时调用
+function parseAndRender() {
+  users = parseUserData(todayInput);
+  todayUsers = users;
+  numUserMap = buildNumUserMap(users);
+  todayNumUserMap = numUserMap;
+  activeNums = {};
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+  renderStatOrderPanel();
+  renderGroupPanel(); // 新增
+}
+function onTodayClick() {
+  mode = 'today';
+  document.getElementById('btnToday').classList.add('active');
+  document.getElementById('btnHistory').classList.remove('active');
+  document.getElementById('historyPanel').style.display = 'none';
+  document.getElementById('mainInput').value = todayInput;
+  parseAndRender();
+  renderStatOrderPanel();
+  renderGroupPanel(); // 新增
+}
+function onHistoryClick() {
+  mode = 'history';
+  document.getElementById('btnToday').classList.remove('active');
+  document.getElementById('btnHistory').classList.add('active');
+  document.getElementById('historyPanel').style.display = '';
+  document.getElementById('mainInput').value = historyInput;
+  parseHistoryUsersAndAutoSelect();
+  renderStatOrderPanel();
+  renderGroupPanel(); // 新增
+}
+window.onload = function() {
+  document.getElementById('historyPanel').style.display = 'none';
+  renderGrid49();
+  renderDetailPanel();
+  renderStatPanel();
+  renderStatOrderPanel();
+  renderGroupPanel(); // 新增
+};
+// ...existing code...
+</script>
+</body>
+</html>
